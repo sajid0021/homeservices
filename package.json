@@ -4,8 +4,7 @@
   "description": "Service Provider Backend Server",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "build": "cd frontend && npm install && npm run build && cd .. && mkdir -p dist && cp -r frontend/dist/. dist/"
+    "start": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
