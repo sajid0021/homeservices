@@ -21,13 +21,18 @@ export default function PhoneLoginView({ onSendOtp, onBack }) {
     setErrorMsg('');
     if (phoneNumber.length === 10) {
       setIsSubmitting(true);
+      console.log('Sending OTP request to: /api/otp/send', { phoneNumber });
       fetch('/api/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phoneNumber })
       })
-        .then(res => res.json())
+        .then(res => {
+          console.log('Received response from /api/otp/send:', res);
+          return res.json();
+        })
         .then(data => {
+          console.log('Parsed data from /api/otp/send:', data);
           setIsSubmitting(false);
           if (data.success) {
             onSendOtp(phoneNumber, data.devOtp);
@@ -37,9 +42,9 @@ export default function PhoneLoginView({ onSendOtp, onBack }) {
           }
         })
         .catch(err => {
+          console.error('Fetch error in /api/otp/send:', err);
           setIsSubmitting(false);
           setErrorMsg('Unable to connect to the server.');
-          console.error(err);
           setHasError(true);
         });
     } else {

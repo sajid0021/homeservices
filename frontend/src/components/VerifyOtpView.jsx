@@ -80,13 +80,18 @@ export default function VerifyOtpView({ phoneNumber, devOtp, onBack, onVerify })
     }
     
     setIsSubmitting(true);
+    console.log('Sending OTP verification request to: /api/otp/verify', { phoneNumber, otp: code });
     fetch('/api/otp/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phoneNumber, otp: code })
     })
-      .then(res => res.json())
+      .then(res => {
+        console.log('Received response from /api/otp/verify:', res);
+        return res.json();
+      })
       .then(data => {
+        console.log('Parsed data from /api/otp/verify:', data);
         setIsSubmitting(false);
         if (data.success) {
           onVerify(code);
@@ -95,9 +100,9 @@ export default function VerifyOtpView({ phoneNumber, devOtp, onBack, onVerify })
         }
       })
       .catch(err => {
+        console.error('Fetch error in /api/otp/verify:', err);
         setIsSubmitting(false);
         setErrorMsg('Verification failed.');
-        console.error(err);
       });
   };
 
