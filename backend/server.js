@@ -262,5 +262,9 @@ app.post('/api/bookings/update-status', (req, res) => {
   res.json({ success: true, booking });
 });
 
-const PORT = 5000;
-app.listen(PORT, () => console.log(`NestMate Backbone operating on port ${PORT}`));
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`NestMate Backbone operating on port ${PORT}`));
+}
+
+module.exports = app;
