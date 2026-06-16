@@ -98,27 +98,6 @@ export default function ProfileView({ onOpenSafetyCenter, onOpenBookingHistory, 
           </div>
         </div>
 
-        {/* Administrative Console */}
-        <div>
-          <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2 px-2">Administrative Console</h2>
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden">
-            <button 
-              onClick={onOpenAdmin}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group text-left"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-700">
-                  <span className="material-symbols-outlined">admin_panel_settings</span>
-                </div>
-                <div>
-                  <span className="text-sm font-bold text-slate-800 block">Admin Portal</span>
-                  <span className="text-[10px] text-slate-400">Override booking states, manage partners & check biometrics</span>
-                </div>
-              </div>
-              <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
-            </button>
-          </div>
-        </div>
 
         {/* Support & Legal */}
         <div>
