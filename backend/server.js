@@ -1,11 +1,24 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const twilio = require('twilio');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
+
+// Initialize Twilio Client defensively
+let twilioClient = null;
+if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+  try {
+    twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    console.log('[Twilio] Initialized successfully');
+  } catch (e) {
+    console.error("Failed to initialize Twilio client:", e);
+  }
+}
 
 // OTP Memory Store
 const otpStore = {};
@@ -17,7 +30,7 @@ const mockPartners = [
 ];
 
 // OTP APIs
-app.post('/api/otp/send', (req, res) => {
+app.post('/api/otp/send', async (req, res) => {
   const { phoneNumber } = req.body;
 
   if (!phoneNumber || phoneNumber.length !== 10) {
@@ -33,13 +46,41 @@ app.post('/api/otp/send', (req, res) => {
     expiresAt: Date.now() + 5 * 60 * 1000 
   };
 
+  let smsSent = false;
+  let errorDetail = "";
+
+  // If Twilio is configured, try sending a real SMS
+  if (twilioClient && process.env.TWILIO_PHONE_NUMBER) {
+    try {
+      // Twilio requires international format (+91 for India)
+      const formattedNumber = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
+      await twilioClient.messages.create({
+        body: `Mee OTP: ${generatedOtp}. Idi next 5 minutes valid.`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: formattedNumber
+      });
+      smsSent = true;
+      console.log(`[Twilio] Sent real SMS OTP to ${formattedNumber}`);
+    } catch (err) {
+      console.error("Twilio error sending SMS:", err);
+      errorDetail = err.message || "Twilio error";
+    }
+  }
+
   // SMS Gateway Simulation Alert
-  console.log(`\n--- 📱 REALISTIC SMS GATEWAY ALERT ---`);
+  console.log(`\n--- 📱 SMS GATEWAY ALERT (${smsSent ? 'REAL SMS SENT' : 'SIMULATED'}) ---`);
   console.log(`To: +91 ${phoneNumber}`);
   console.log(`Message: [NestMate] Your login OTP is: ${generatedOtp}. This is valid for 5 minutes only.`);
+  if (!smsSent && twilioClient) {
+    console.log(`Note: Twilio failed (${errorDetail}). Fell back to simulation.`);
+  }
   console.log(`--------------------------------------\n`);
 
-  res.json({ success: true, message: "OTP sent successfully!", devOtp: generatedOtp });
+  res.json({ 
+    success: true, 
+    message: smsSent ? "OTP sent successfully via Twilio!" : "OTP sent successfully!", 
+    devOtp: generatedOtp 
+  });
 });
 
 app.post('/api/otp/verify', (req, res) => {
