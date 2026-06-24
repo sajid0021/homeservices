@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import HomeHealthScore from './components/HomeHealthScore';
 import ActionGrid from './components/ActionGrid';
 import BundledCheckout from './components/BundledCheckout';
@@ -1520,6 +1521,7 @@ export default function App() {
           </div>
         ))}
       </div>
+      <SpeedInsights />
     </div>
   );
 }
